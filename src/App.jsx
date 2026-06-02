@@ -212,193 +212,176 @@ function ValueArrow({ cur, tgt, unit, good, mode }) {
   );
 }
 
-function BodyMap({ selected, onSelect }) {
-  const fillFor = (key) => {
-    if (selected === key) return "url(#selectedFill)";
-    const f = segments[key].fat;
-    const over = f.cur / f.high;
-    return over > 1.4 ? "url(#highFatFill)" : over > 1 ? "url(#medFatFill)" : "url(#lowFatFill)";
+// ---------- ANATOMY FIGURE: front + back, per-muscle SVG paths ----------
+// Front figure centered at x=135, back at x=425. ViewBox 560×450.
+const FC = 135, BC = 425;
+const fronts = {
+  // -- HEAD & NECK (not selectable, dark silhouette) --
+  head_f: `M${FC-18},28 C${FC-18},12 ${FC-8},2 ${FC},2 C${FC+8},2 ${FC+18},12 ${FC+18},28 C${FC+18},42 ${FC+10},52 ${FC},54 C${FC-10},52 ${FC-18},42 ${FC-18},28 Z`,
+  neck_f: `M${FC-10},54 L${FC-12},70 L${FC+12},70 L${FC+10},54 Z`,
+  // -- CHEST --
+  pec_l: `M${FC-2},80 C${FC-4},88 ${FC-6},105 ${FC-4},118 L${FC-22},120 C${FC-40},118 ${FC-56},110 ${FC-62},98 C${FC-66},90 ${FC-62},80 ${FC-52},76 L${FC-28},74 Z`,
+  pec_r: `M${FC+2},80 C${FC+4},88 ${FC+6},105 ${FC+4},118 L${FC+22},120 C${FC+40},118 ${FC+56},110 ${FC+62},98 C${FC+66},90 ${FC+62},80 ${FC+52},76 L${FC+28},74 Z`,
+  // -- FRONT DELTS --
+  delt_fl: `M${FC-52},76 C${FC-60},72 ${FC-72},70 ${FC-80},74 C${FC-88},80 ${FC-88},94 ${FC-84},104 L${FC-72},106 C${FC-66},98 ${FC-62},88 ${FC-62},80 Z`,
+  delt_fr: `M${FC+52},76 C${FC+60},72 ${FC+72},70 ${FC+80},74 C${FC+88},80 ${FC+88},94 ${FC+84},104 L${FC+72},106 C${FC+66},98 ${FC+62},88 ${FC+62},80 Z`,
+  // -- BICEPS --
+  bicep_l: `M${FC-72},108 C${FC-68},112 ${FC-64},130 ${FC-66},155 C${FC-67},165 ${FC-70},170 ${FC-76},172 C${FC-82},170 ${FC-86},160 ${FC-86},148 C${FC-86},130 ${FC-82},112 ${FC-78},106 Z`,
+  bicep_r: `M${FC+72},108 C${FC+68},112 ${FC+64},130 ${FC+66},155 C${FC+67},165 ${FC+70},170 ${FC+76},172 C${FC+82},170 ${FC+86},160 ${FC+86},148 C${FC+86},130 ${FC+82},112 ${FC+78},106 Z`,
+  // -- FOREARMS (front) --
+  forearm_fl: `M${FC-68},174 C${FC-64},178 ${FC-60},200 ${FC-58},225 C${FC-56},242 ${FC-54},255 ${FC-52},264 L${FC-60},266 C${FC-66},258 ${FC-72},240 ${FC-76},220 C${FC-80},200 ${FC-80},182 ${FC-76},174 Z`,
+  forearm_fr: `M${FC+68},174 C${FC+64},178 ${FC+60},200 ${FC+58},225 C${FC+56},242 ${FC+54},255 ${FC+52},264 L${FC+60},266 C${FC+66},258 ${FC+72},240 ${FC+76},220 C${FC+80},200 ${FC+80},182 ${FC+76},174 Z`,
+  // -- ABS --
+  abs_f: `M${FC-18},122 L${FC-16},145 L${FC-14},170 L${FC-14},200 C${FC-14},210 ${FC-10},218 ${FC},220 C${FC+10},218 ${FC+14},210 ${FC+14},200 L${FC+14},170 L${FC+16},145 L${FC+18},122 Z`,
+  // -- OBLIQUES / SERRATUS --
+  oblique_fl: `M${FC-22},120 L${FC-18},122 L${FC-16},145 L${FC-14},190 L${FC-14},218 C${FC-18},222 ${FC-26},226 ${FC-36},228 L${FC-44},226 C${FC-50},220 ${FC-52},200 ${FC-50},180 L${FC-46},150 C${FC-44},135 ${FC-38},124 ${FC-30},120 Z`,
+  oblique_fr: `M${FC+22},120 L${FC+18},122 L${FC+16},145 L${FC+14},190 L${FC+14},218 C${FC+18},222 ${FC+26},226 ${FC+36},228 L${FC+44},226 C${FC+50},220 ${FC+52},200 ${FC+50},180 L${FC+46},150 C${FC+44},135 ${FC+38},124 ${FC+30},120 Z`,
+  // -- QUADS --
+  quad_ol: `M${FC-36},232 L${FC-44},230 C${FC-52},234 ${FC-58},260 ${FC-60},295 C${FC-62},320 ${FC-60},345 ${FC-56},360 L${FC-44},362 C${FC-40},345 ${FC-38},320 ${FC-38},295 C${FC-38},268 ${FC-36},248 ${FC-36},232 Z`,
+  quad_or: `M${FC+36},232 L${FC+44},230 C${FC+52},234 ${FC+58},260 ${FC+60},295 C${FC+62},320 ${FC+60},345 ${FC+56},360 L${FC+44},362 C${FC+40},345 ${FC+38},320 ${FC+38},295 C${FC+38},268 ${FC+36},248 ${FC+36},232 Z`,
+  quad_cl: `M${FC-16},224 C${FC-20},230 ${FC-26},232 ${FC-34},232 L${FC-36},260 C${FC-36},290 ${FC-36},320 ${FC-38},350 L${FC-38},362 L${FC-26},364 C${FC-24},340 ${FC-22},310 ${FC-20},280 C${FC-18},255 ${FC-16},238 ${FC-16},224 Z`,
+  quad_cr: `M${FC+16},224 C${FC+20},230 ${FC+26},232 ${FC+34},232 L${FC+36},260 C${FC+36},290 ${FC+36},320 ${FC+38},350 L${FC+38},362 L${FC+26},364 C${FC+24},340 ${FC+22},310 ${FC+20},280 C${FC+18},255 ${FC+16},238 ${FC+16},224 Z`,
+  quad_il: `M${FC-14},224 L${FC-16},224 C${FC-16},240 ${FC-18},265 ${FC-20},290 L${FC-24},340 L${FC-26},364 L${FC-18},366 C${FC-14},345 ${FC-10},316 ${FC-8},290 C${FC-6},265 ${FC-8},240 ${FC-14},224 Z`,
+  quad_ir: `M${FC+14},224 L${FC+16},224 C${FC+16},240 ${FC+18},265 ${FC+20},290 L${FC+24},340 L${FC+26},364 L${FC+18},366 C${FC+14},345 ${FC+10},316 ${FC+8},290 C${FC+6},265 ${FC+8},240 ${FC+14},224 Z`,
+  // -- SHINS --
+  shin_l: `M${FC-22},370 C${FC-26},375 ${FC-34},378 ${FC-42},374 L${FC-44},368 C${FC-48},385 ${FC-50},405 ${FC-48},425 L${FC-44},438 L${FC-30},440 C${FC-28},420 ${FC-24},398 ${FC-22},380 Z`,
+  shin_r: `M${FC+22},370 C${FC+26},375 ${FC+34},378 ${FC+42},374 L${FC+44},368 C${FC+48},385 ${FC+50},405 ${FC+48},425 L${FC+44},438 L${FC+30},440 C${FC+28},420 ${FC+24},398 ${FC+22},380 Z`,
+  calf_fl: `M${FC-22},370 C${FC-22},385 ${FC-24},405 ${FC-28},425 L${FC-30},440 L${FC-18},442 C${FC-14},422 ${FC-10},400 ${FC-10},385 C${FC-10},374 ${FC-14},370 ${FC-22},370 Z`,
+  calf_fr: `M${FC+22},370 C${FC+22},385 ${FC+24},405 ${FC+28},425 L${FC+30},440 L${FC+18},442 C${FC+14},422 ${FC+10},400 ${FC+10},385 C${FC+10},374 ${FC+14},370 ${FC+22},370 Z`,
+};
+const backs = {
+  head_b: `M${BC-18},28 C${BC-18},12 ${BC-8},2 ${BC},2 C${BC+8},2 ${BC+18},12 ${BC+18},28 C${BC+18},42 ${BC+10},52 ${BC},54 C${BC-10},52 ${BC-18},42 ${BC-18},28 Z`,
+  neck_b: `M${BC-10},54 L${BC-12},70 L${BC+12},70 L${BC+10},54 Z`,
+  // -- TRAPS --
+  trap_l: `M${BC-12},70 C${BC-20},72 ${BC-40},74 ${BC-56},78 C${BC-64},82 ${BC-68},76 ${BC-72},72 L${BC-60},68 C${BC-44},66 ${BC-26},66 ${BC-12},68 Z`,
+  trap_r: `M${BC+12},70 C${BC+20},72 ${BC+40},74 ${BC+56},78 C${BC+64},82 ${BC+68},76 ${BC+72},72 L${BC+60},68 C${BC+44},66 ${BC+26},66 ${BC+12},68 Z`,
+  // -- REAR DELTS --
+  delt_bl: `M${BC-56},80 C${BC-64},78 ${BC-74},76 ${BC-82},78 C${BC-88},84 ${BC-86},98 ${BC-82},108 L${BC-72},106 C${BC-68},96 ${BC-64},86 ${BC-58},82 Z`,
+  delt_br: `M${BC+56},80 C${BC+64},78 ${BC+74},76 ${BC+82},78 C${BC+88},84 ${BC+86},98 ${BC+82},108 L${BC+72},106 C${BC+68},96 ${BC+64},86 ${BC+58},82 Z`,
+  // -- LATS --
+  lat_l: `M${BC-14},82 L${BC-52},82 C${BC-56},90 ${BC-58},110 ${BC-56},135 C${BC-54},160 ${BC-50},185 ${BC-44},200 L${BC-36},210 C${BC-30},206 ${BC-22},198 ${BC-18},188 L${BC-14},160 Z`,
+  lat_r: `M${BC+14},82 L${BC+52},82 C${BC+56},90 ${BC+58},110 ${BC+56},135 C${BC+54},160 ${BC+50},185 ${BC+44},200 L${BC+36},210 C${BC+30},206 ${BC+22},198 ${BC+18},188 L${BC+14},160 Z`,
+  // -- LOWER BACK --
+  lowback: `M${BC-14},160 C${BC-16},180 ${BC-20},200 ${BC-30},216 L${BC-36},228 C${BC-24},230 ${BC-12},230 ${BC},230 C${BC+12},230 ${BC+24},230 ${BC+36},228 L${BC+30},216 C${BC+20},200 ${BC+16},180 ${BC+14},160 Z`,
+  // -- TRICEPS --
+  tricep_l: `M${BC-72},108 C${BC-68},114 ${BC-64},132 ${BC-66},155 C${BC-68},168 ${BC-72},174 ${BC-78},176 C${BC-84},174 ${BC-88},162 ${BC-88},148 C${BC-88},130 ${BC-82},112 ${BC-78},108 Z`,
+  tricep_r: `M${BC+72},108 C${BC+68},114 ${BC+64},132 ${BC+66},155 C${BC+68},168 ${BC+72},174 ${BC+78},176 C${BC+84},174 ${BC+88},162 ${BC+88},148 C${BC+88},130 ${BC+82},112 ${BC+78},108 Z`,
+  // -- FOREARMS (back) --
+  forearm_bl: `M${BC-68},178 C${BC-64},182 ${BC-60},204 ${BC-58},228 C${BC-56},244 ${BC-54},256 ${BC-52},266 L${BC-60},268 C${BC-66},258 ${BC-72},242 ${BC-76},222 C${BC-80},202 ${BC-80},186 ${BC-76},178 Z`,
+  forearm_br: `M${BC+68},178 C${BC+64},182 ${BC+60},204 ${BC+58},228 C${BC+56},244 ${BC+54},256 ${BC+52},266 L${BC+60},268 C${BC+66},258 ${BC+72},242 ${BC+76},222 C${BC+80},202 ${BC+80},186 ${BC+76},178 Z`,
+  // -- GLUTES --
+  glute_l: `M${BC-36},228 C${BC-40},232 ${BC-50},236 ${BC-54},244 C${BC-58},254 ${BC-54},266 ${BC-46},270 L${BC-14},268 C${BC-10},258 ${BC-10},244 ${BC-14},234 L${BC-24},230 Z`,
+  glute_r: `M${BC+36},228 C${BC+40},232 ${BC+50},236 ${BC+54},244 C${BC+58},254 ${BC+54},266 ${BC+46},270 L${BC+14},268 C${BC+10},258 ${BC+10},244 ${BC+14},234 L${BC+24},230 Z`,
+  // -- HAMSTRINGS --
+  ham_l: `M${BC-14},272 L${BC-46},274 C${BC-52},290 ${BC-56},320 ${BC-56},350 L${BC-52},370 L${BC-20},372 C${BC-16},350 ${BC-14},320 ${BC-14},295 Z`,
+  ham_r: `M${BC+14},272 L${BC+46},274 C${BC+52},290 ${BC+56},320 ${BC+56},350 L${BC+52},370 L${BC+20},372 C${BC+16},350 ${BC+14},320 ${BC+14},295 Z`,
+  // -- CALVES (back) --
+  calf_bl: `M${BC-20},376 L${BC-52},374 C${BC-54},392 ${BC-52},412 ${BC-48},432 L${BC-44},442 L${BC-22},444 C${BC-20},424 ${BC-18},404 ${BC-18},390 Z`,
+  calf_br: `M${BC+20},376 L${BC+52},374 C${BC+54},392 ${BC+52},412 ${BC+48},432 L${BC+44},442 L${BC+22},444 C${BC+20},424 ${BC+18},404 ${BC+18},390 Z`,
+};
+const allMusclePaths = { ...fronts, ...backs };
+
+const DARK = "rgba(255,255,255,0.08)";
+const LIT_BASE = "rgba(220,220,215,0.75)";
+const LIT_HL = "rgba(232,117,107,0.85)";
+const SEL_HL = "rgba(139,233,255,0.75)";
+const HEAD_FILL = "rgba(30,32,38,0.95)";
+
+const workoutMuscles = {
+  Push: ["pec_l","pec_r","delt_fl","delt_fr","delt_bl","delt_br","forearm_fl","forearm_fr","forearm_bl","forearm_br","tricep_l","tricep_r"],
+  Pull: ["bicep_l","bicep_r","forearm_fl","forearm_fr","forearm_bl","forearm_br","lat_l","lat_r","trap_l","trap_r","delt_bl","delt_br","lowback"],
+  Legs: ["quad_ol","quad_or","quad_cl","quad_cr","quad_il","quad_ir","shin_l","shin_r","calf_fl","calf_fr","calf_bl","calf_br","glute_l","glute_r","ham_l","ham_r"],
+  Rest: [],
+};
+
+const segmentalMuscles = {
+  torso: ["pec_l","pec_r","abs_f","oblique_fl","oblique_fr","lat_l","lat_r","lowback","trap_l","trap_r"],
+  rightArm: ["delt_fl","delt_bl","bicep_l","tricep_l","forearm_fl","forearm_bl"],
+  leftArm: ["delt_fr","delt_br","bicep_r","tricep_r","forearm_fr","forearm_br"],
+  rightLeg: ["quad_ol","quad_cl","quad_il","shin_l","calf_fl","calf_bl","glute_l","ham_l"],
+  leftLeg: ["quad_or","quad_cr","quad_ir","shin_r","calf_fr","calf_br","glute_r","ham_r"],
+};
+
+const headIds = ["head_f","neck_f","head_b","neck_b"];
+
+function AnatomyFigure({ highlights = {}, onClickRegion, selected }) {
+  const regionOf = (id) => {
+    for (const [reg, ms] of Object.entries(segmentalMuscles)) {
+      if (ms.includes(id)) return reg;
+    }
+    return null;
   };
-  const glowFor = (key) => {
-    if (selected === key) return `drop-shadow(0 0 10px rgba(139,233,255,0.9)) drop-shadow(0 0 25px rgba(139,233,255,0.5)) drop-shadow(0 0 45px rgba(0,120,255,0.3))`;
-    return `drop-shadow(0 0 4px rgba(0,160,255,0.4)) drop-shadow(0 0 10px rgba(0,120,255,0.15))`;
+
+  const renderMuscle = (id, d) => {
+    const isHead = headIds.includes(id);
+    const lit = !!highlights[id];
+    const reg = regionOf(id);
+    const isSel = selected && reg === selected;
+    const fill = isHead ? HEAD_FILL : lit ? highlights[id] : LIT_BASE;
+    const stroke = isHead ? "rgba(255,255,255,0.04)" : "rgba(50,55,65,0.9)";
+    const sw = isHead ? 0 : isSel ? 1.5 : 0.8;
+    const filt = lit && !isHead ? `drop-shadow(0 0 4px ${highlights[id]}66)` : "none";
+    return (
+      <path key={id} d={d} fill={fill} stroke={stroke} strokeWidth={sw} strokeLinejoin="round"
+        style={{ filter: filt, cursor: onClickRegion && reg ? "pointer" : "default", transition: "fill .35s, filter .35s" }}
+        onClick={() => onClickRegion && reg && onClickRegion(reg === selected ? null : reg)} />
+    );
   };
-  const strokeFor = (key) => selected === key ? "rgba(139,233,255,0.95)" : "rgba(0,180,255,0.35)";
-  const swFor = (key) => selected === key ? 1.8 : 0.6;
-  const region = (key, node) => (
-    <g key={key} style={{ cursor: "pointer", filter: glowFor(key), transition: "filter 0.4s" }}
-       onClick={() => onSelect(key === selected ? null : key)}
-       onMouseEnter={(e) => { if (key !== selected) e.currentTarget.style.filter = `drop-shadow(0 0 8px rgba(139,233,255,0.7)) drop-shadow(0 0 18px rgba(0,120,255,0.35))`; }}
-       onMouseLeave={(e) => { e.currentTarget.style.filter = glowFor(key); }}>
-      {node(fillFor(key), strokeFor(key), swFor(key))}
-    </g>
-  );
 
   return (
-    <div className="holo-body-wrap" style={{ position: "relative", width: "100%", maxWidth: 300, margin: "0 auto", overflow: "hidden", borderRadius: 18 }}>
+    <div style={{ position: "relative", width: "100%", margin: "0 auto", overflow: "hidden", borderRadius: 18, background: "rgba(52,56,66,0.6)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)" }}>
       <style>{`
-        .holo-body-wrap {
-          background: radial-gradient(ellipse 90% 70% at 50% 42%, rgba(0,50,110,0.55), rgba(0,18,40,0.9) 55%, #010810 100%);
-          box-shadow: inset 0 0 60px rgba(0,80,160,0.15), 0 0 30px rgba(0,60,120,0.1);
-        }
-        .holo-grid {
-          position: absolute; inset: 0; pointer-events: none; z-index: 1;
-          background-image:
-            linear-gradient(rgba(0,120,255,0.07) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0,120,255,0.07) 1px, transparent 1px);
-          background-size: 20px 20px;
-          mask-image: radial-gradient(ellipse 75% 60% at 50% 42%, rgba(0,0,0,0.6) 20%, transparent 70%);
-          -webkit-mask-image: radial-gradient(ellipse 75% 60% at 50% 42%, rgba(0,0,0,0.6) 20%, transparent 70%);
-        }
-        .holo-ambient {
-          position: absolute; inset: 0; pointer-events: none; z-index: 1;
-          background: radial-gradient(ellipse 50% 40% at 50% 45%, rgba(0,140,255,0.08), transparent 70%);
-        }
-        .holo-vignette {
-          position: absolute; inset: 0; pointer-events: none; z-index: 8;
-          background: radial-gradient(ellipse 50% 48% at 50% 42%, transparent 45%, rgba(1,8,16,0.92) 100%);
-        }
-        @keyframes holoScan {
-          0%   { top: -6%; opacity: 0; }
-          4%   { opacity: 1; }
-          48%  { top: 98%; opacity: 0.9; }
+        @keyframes anatomyScan {
+          0%   { top: -4%; opacity: 0; }
+          3%   { opacity: 0.7; }
+          48%  { top: 96%; opacity: 0.6; }
           52%  { opacity: 0; }
-          56%  { top: 98%; opacity: 0; }
-          60%  { opacity: 1; }
-          96%  { top: -6%; opacity: 0.9; }
-          100% { top: -6%; opacity: 0; }
+          56%  { top: 96%; opacity: 0; }
+          60%  { opacity: 0.7; }
+          96%  { top: -4%; opacity: 0.6; }
+          100% { top: -4%; opacity: 0; }
         }
-        .holo-scan-line {
-          position: absolute; left: 0; right: 0; height: 2px; pointer-events: none; z-index: 10;
-          background: linear-gradient(90deg,
-            transparent 0%,
-            rgba(139,233,255,0.03) 8%,
-            rgba(139,233,255,0.6) 25%,
-            rgba(200,240,255,0.95) 45%,
-            rgba(255,255,255,1) 50%,
-            rgba(200,240,255,0.95) 55%,
-            rgba(139,233,255,0.6) 75%,
-            rgba(139,233,255,0.03) 92%,
-            transparent 100%);
-          box-shadow:
-            0 0 8px 2px rgba(139,233,255,0.6),
-            0 0 25px 6px rgba(139,233,255,0.3),
-            0 0 60px 12px rgba(0,100,200,0.15);
-          animation: holoScan 5s ease-in-out infinite;
-        }
-        .holo-scan-bloom {
-          position: absolute; left: 0; right: 0; height: 80px; pointer-events: none; z-index: 9;
-          transform: translateY(-50%);
-          background: linear-gradient(90deg,
-            transparent 5%,
-            rgba(139,233,255,0.04) 20%,
-            rgba(139,233,255,0.09) 40%,
-            rgba(139,233,255,0.12) 50%,
-            rgba(139,233,255,0.09) 60%,
-            rgba(139,233,255,0.04) 80%,
-            transparent 95%);
-          animation: holoScan 5s ease-in-out infinite;
-        }
-        .holo-body-svg path, .holo-body-svg ellipse {
-          transition: fill 0.4s, stroke 0.4s, filter 0.4s;
-        }
+        .anatomy-scan { position: absolute; left: 0; right: 0; height: 2px; pointer-events: none; z-index: 10;
+          background: linear-gradient(90deg, transparent 5%, rgba(139,233,255,0.4) 25%, rgba(255,255,255,0.7) 50%, rgba(139,233,255,0.4) 75%, transparent 95%);
+          box-shadow: 0 0 10px 2px rgba(139,233,255,0.35); animation: anatomyScan 5s ease-in-out infinite; }
       `}</style>
-
-      <div className="holo-grid" />
-      <div className="holo-ambient" />
-
-      <svg className="holo-body-svg" viewBox="0 0 300 520" style={{ display: "block", width: "100%", position: "relative", zIndex: 3 }}>
-        <defs>
-          <radialGradient id="ambientGlow" cx="50%" cy="42%" rx="40%" ry="48%">
-            <stop offset="0%" stopColor="rgba(0,140,255,0.12)" />
-            <stop offset="60%" stopColor="rgba(0,80,180,0.04)" />
-            <stop offset="100%" stopColor="transparent" />
-          </radialGradient>
-          <linearGradient id="selectedFill" x1="0.5" y1="0" x2="0.5" y2="1">
-            <stop offset="0%" stopColor="rgba(139,233,255,0.65)" />
-            <stop offset="40%" stopColor="rgba(80,200,255,0.5)" />
-            <stop offset="100%" stopColor="rgba(0,140,255,0.35)" />
-          </linearGradient>
-          <linearGradient id="highFatFill" x1="0.5" y1="0" x2="0.5" y2="1">
-            <stop offset="0%" stopColor="rgba(255,107,107,0.22)" />
-            <stop offset="100%" stopColor="rgba(200,60,60,0.12)" />
-          </linearGradient>
-          <linearGradient id="medFatFill" x1="0.5" y1="0" x2="0.5" y2="1">
-            <stop offset="0%" stopColor="rgba(245,185,74,0.2)" />
-            <stop offset="100%" stopColor="rgba(200,140,40,0.1)" />
-          </linearGradient>
-          <linearGradient id="lowFatFill" x1="0.5" y1="0" x2="0.5" y2="1">
-            <stop offset="0%" stopColor="rgba(0,160,255,0.18)" />
-            <stop offset="100%" stopColor="rgba(0,100,200,0.08)" />
-          </linearGradient>
-          <linearGradient id="headFill" x1="0.5" y1="0" x2="0.5" y2="1">
-            <stop offset="0%" stopColor="rgba(60,180,255,0.18)" />
-            <stop offset="100%" stopColor="rgba(0,100,200,0.08)" />
-          </linearGradient>
-          <filter id="bodyBlur">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="8" />
-          </filter>
-        </defs>
-
-        <ellipse cx="150" cy="240" rx="100" ry="200" fill="url(#ambientGlow)" />
-
-        {/* Shadow / outer glow layer behind the body */}
-        <g style={{ filter: "blur(12px)", opacity: 0.4 }}>
-          <ellipse cx="150" cy="52" rx="28" ry="32" fill="rgba(0,140,255,0.3)" />
-          <path d="M112,96 C108,96 100,102 98,110 L92,165 L90,205 C90,215 96,222 108,224 L140,228 L160,228 L192,224 C204,222 210,215 210,205 L208,165 L202,110 C200,102 192,96 188,96 Z" fill="rgba(0,140,255,0.25)" />
-          <path d="M94,104 C84,108 72,118 62,148 L48,200 L36,240 C34,248 38,252 44,248 L60,210 L80,160 L94,120 Z" fill="rgba(0,140,255,0.2)" />
-          <path d="M206,104 C216,108 228,118 238,148 L252,200 L264,240 C266,248 262,252 256,248 L240,210 L220,160 L206,120 Z" fill="rgba(0,140,255,0.2)" />
-          <path d="M112,226 C106,230 100,250 96,290 L88,370 L82,440 L80,480 C80,490 88,494 92,484 L100,420 L108,350 L116,280 L120,240 Z" fill="rgba(0,140,255,0.2)" />
-          <path d="M188,226 C194,230 200,250 204,290 L212,370 L218,440 L220,480 C220,490 212,494 208,484 L200,420 L192,350 L184,280 L180,240 Z" fill="rgba(0,140,255,0.2)" />
-        </g>
-
-        {/* Head */}
-        <ellipse cx="150" cy="52" rx="26" ry="30" fill="url(#headFill)" stroke="rgba(0,180,255,0.3)" strokeWidth="0.7"
-          style={{ filter: "drop-shadow(0 0 6px rgba(0,140,255,0.35))" }} />
-        {/* Neck */}
-        <path d="M138,80 Q140,78 150,78 Q160,78 162,80 L162,96 Q158,94 150,94 Q142,94 138,96 Z"
-          fill="rgba(0,140,255,0.1)" stroke="rgba(0,160,255,0.15)" strokeWidth="0.4" />
-
-        {/* Torso */}
-        {region("torso", (f, s, w) => (
-          <path d="M112,96 C108,96 100,102 98,110 L92,165 L90,205 C90,215 96,222 108,224 L140,228 L160,228 L192,224 C204,222 210,215 210,205 L208,165 L202,110 C200,102 192,96 188,96 Z"
-            fill={f} stroke={s} strokeWidth={w} />
-        ))}
-
-        {/* Right Arm */}
-        {region("rightArm", (f, s, w) => (
-          <path d="M94,104 C84,108 72,118 62,148 L48,200 L36,240 C34,248 34,254 38,256 C42,258 46,254 48,248 L52,232 L60,210 L72,178 L80,160 L90,132 L94,114 Z"
-            fill={f} stroke={s} strokeWidth={w} />
-        ))}
-
-        {/* Left Arm */}
-        {region("leftArm", (f, s, w) => (
-          <path d="M206,104 C216,108 228,118 238,148 L252,200 L264,240 C266,248 266,254 262,256 C258,258 254,254 252,248 L248,232 L240,210 L228,178 L220,160 L210,132 L206,114 Z"
-            fill={f} stroke={s} strokeWidth={w} />
-        ))}
-
-        {/* Right Leg */}
-        {region("rightLeg", (f, s, w) => (
-          <path d="M112,226 C106,230 100,250 96,280 L90,330 L86,380 L82,430 L80,460 L78,480 C78,490 82,496 88,496 C94,496 96,490 96,484 L98,460 L102,420 L106,380 L110,330 L114,280 L118,250 L120,234 Z"
-            fill={f} stroke={s} strokeWidth={w} />
-        ))}
-
-        {/* Left Leg */}
-        {region("leftLeg", (f, s, w) => (
-          <path d="M188,226 C194,230 200,250 204,280 L210,330 L214,380 L218,430 L220,460 L222,480 C222,490 218,496 212,496 C206,496 204,490 204,484 L202,460 L198,420 L194,380 L190,330 L186,280 L182,250 L180,234 Z"
-            fill={f} stroke={s} strokeWidth={w} />
-        ))}
-
-        {/* R / L labels */}
-        <text x="28" y="106" textAnchor="middle" fill="rgba(139,233,255,0.35)" fontSize="11" fontFamily="'IBM Plex Mono', monospace" fontWeight="600">R</text>
-        <text x="272" y="106" textAnchor="middle" fill="rgba(139,233,255,0.35)" fontSize="11" fontFamily="'IBM Plex Mono', monospace" fontWeight="600">L</text>
-      </svg>
-
-      <div className="holo-scan-bloom" />
-      <div className="holo-scan-line" />
-      <div className="holo-vignette" />
+      <div style={{ display: "flex", justifyContent: "center", gap: 0 }}>
+        <div style={{ textAlign: "center", flex: "1 1 50%" }}>
+          <svg viewBox="0 0 270 460" style={{ display: "block", width: "100%", padding: "12px 0 2px" }}>
+            {Object.entries(fronts).map(([id, d]) => renderMuscle(id, d))}
+          </svg>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, letterSpacing: ".12em", color: "rgba(255,255,255,0.35)", paddingBottom: 10 }}>FRONT</div>
+        </div>
+        <div style={{ width: 1, background: "rgba(255,255,255,0.06)", margin: "20px 0" }} />
+        <div style={{ textAlign: "center", flex: "1 1 50%" }}>
+          <svg viewBox="290 0 270 460" style={{ display: "block", width: "100%", padding: "12px 0 2px" }}>
+            {Object.entries(backs).map(([id, d]) => renderMuscle(id, d))}
+          </svg>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, letterSpacing: ".12em", color: "rgba(255,255,255,0.35)", paddingBottom: 10 }}>BACK</div>
+        </div>
+      </div>
+      <div className="anatomy-scan" />
     </div>
   );
+}
+
+function BodyMap({ selected, onSelect }) {
+  const highlights = {};
+  for (const [reg, muscles] of Object.entries(segmentalMuscles)) {
+    const f = segments[reg].fat;
+    const over = f.cur / f.high;
+    const base = over > 1.4 ? "rgba(232,117,107,0.7)" : over > 1 ? "rgba(245,185,74,0.6)" : LIT_BASE;
+    const sel = SEL_HL;
+    for (const m of muscles) highlights[m] = reg === selected ? sel : base;
+  }
+  return <AnatomyFigure highlights={highlights} onClickRegion={onSelect} selected={selected} />;
+}
+
+function TrainingFigure({ day }) {
+  const highlights = {};
+  const active = workoutMuscles[day] || [];
+  for (const m of active) highlights[m] = LIT_HL;
+  return <AnatomyFigure highlights={highlights} />;
 }
 
 function Gauge({ cur, tgt, max, label, sub, mode }) {
@@ -840,6 +823,11 @@ export default function App() {
               </div>
             </Panel>
 
+            <div className="split2 start">
+              <div>
+                <TrainingFigure day={wkday} />
+                <div style={{ textAlign: "center", marginTop: 12, fontFamily: "'IBM Plex Mono', monospace", fontSize: 10.5, color: "rgba(232,117,107,0.7)", letterSpacing: ".06em" }}>MUSCLES TARGETED · {wkday === "Rest" ? "recovery" : wkday.toUpperCase()}</div>
+              </div>
             <Panel>
               <div style={{ display: "flex", gap: 8, marginBottom: 18, flexWrap: "wrap" }}>
                 {["Push", "Pull", "Legs"].map((w) => (
@@ -875,6 +863,7 @@ export default function App() {
                 </>
               )}
             </Panel>
+            </div>
 
             <div>
               <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, letterSpacing: ".14em", color: "rgba(255,255,255,0.45)", marginBottom: 12 }}>16-WEEK PROGRESSION · tap a block</div>
