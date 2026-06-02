@@ -214,24 +214,190 @@ function ValueArrow({ cur, tgt, unit, good, mode }) {
 
 function BodyMap({ selected, onSelect }) {
   const fillFor = (key) => {
-    if (selected === key) return "rgba(139,233,255,0.85)";
+    if (selected === key) return "url(#selectedFill)";
     const f = segments[key].fat;
     const over = f.cur / f.high;
-    return over > 1.4 ? "rgba(255,107,107,0.34)" : over > 1 ? "rgba(245,185,74,0.32)" : "rgba(52,224,161,0.28)";
+    return over > 1.4 ? "url(#highFatFill)" : over > 1 ? "url(#medFatFill)" : "url(#lowFatFill)";
   };
-  const stroke = (key) => (selected === key ? GOAL : "rgba(255,255,255,0.22)");
-  const region = (key, node) => <g style={{ cursor: "pointer" }} onClick={() => onSelect(key === selected ? null : key)}>{node(fillFor(key), stroke(key), selected === key ? 2 : 1.2)}</g>;
+  const glowFor = (key) => {
+    if (selected === key) return `drop-shadow(0 0 10px rgba(139,233,255,0.9)) drop-shadow(0 0 25px rgba(139,233,255,0.5)) drop-shadow(0 0 45px rgba(0,120,255,0.3))`;
+    return `drop-shadow(0 0 4px rgba(0,160,255,0.4)) drop-shadow(0 0 10px rgba(0,120,255,0.15))`;
+  };
+  const strokeFor = (key) => selected === key ? "rgba(139,233,255,0.95)" : "rgba(0,180,255,0.35)";
+  const swFor = (key) => selected === key ? 1.8 : 0.6;
+  const region = (key, node) => (
+    <g key={key} style={{ cursor: "pointer", filter: glowFor(key), transition: "filter 0.4s" }}
+       onClick={() => onSelect(key === selected ? null : key)}
+       onMouseEnter={(e) => { if (key !== selected) e.currentTarget.style.filter = `drop-shadow(0 0 8px rgba(139,233,255,0.7)) drop-shadow(0 0 18px rgba(0,120,255,0.35))`; }}
+       onMouseLeave={(e) => { e.currentTarget.style.filter = glowFor(key); }}>
+      {node(fillFor(key), strokeFor(key), swFor(key))}
+    </g>
+  );
+
   return (
-    <svg viewBox="0 0 200 380" style={{ width: "100%", maxWidth: 240, display: "block", margin: "0 auto", overflow: "visible" }}>
-      <circle cx="100" cy="34" r="22" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.18)" strokeWidth="1.2" />
-      {region("torso", (f, s, w) => <rect x="64" y="62" width="72" height="118" rx="20" fill={f} stroke={s} strokeWidth={w} />)}
-      {region("rightArm", (f, s, w) => <rect x="34" y="70" width="24" height="104" rx="12" fill={f} stroke={s} strokeWidth={w} />)}
-      {region("leftArm", (f, s, w) => <rect x="142" y="70" width="24" height="104" rx="12" fill={f} stroke={s} strokeWidth={w} />)}
-      {region("rightLeg", (f, s, w) => <rect x="68" y="186" width="28" height="150" rx="14" fill={f} stroke={s} strokeWidth={w} />)}
-      {region("leftLeg", (f, s, w) => <rect x="104" y="186" width="28" height="150" rx="14" fill={f} stroke={s} strokeWidth={w} />)}
-      <text x="46" y="60" textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="9" fontFamily="'IBM Plex Mono', monospace">R</text>
-      <text x="154" y="60" textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="9" fontFamily="'IBM Plex Mono', monospace">L</text>
-    </svg>
+    <div className="holo-body-wrap" style={{ position: "relative", width: "100%", maxWidth: 300, margin: "0 auto", overflow: "hidden", borderRadius: 18 }}>
+      <style>{`
+        .holo-body-wrap {
+          background: radial-gradient(ellipse 90% 70% at 50% 42%, rgba(0,50,110,0.55), rgba(0,18,40,0.9) 55%, #010810 100%);
+          box-shadow: inset 0 0 60px rgba(0,80,160,0.15), 0 0 30px rgba(0,60,120,0.1);
+        }
+        .holo-grid {
+          position: absolute; inset: 0; pointer-events: none; z-index: 1;
+          background-image:
+            linear-gradient(rgba(0,120,255,0.07) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,120,255,0.07) 1px, transparent 1px);
+          background-size: 20px 20px;
+          mask-image: radial-gradient(ellipse 75% 60% at 50% 42%, rgba(0,0,0,0.6) 20%, transparent 70%);
+          -webkit-mask-image: radial-gradient(ellipse 75% 60% at 50% 42%, rgba(0,0,0,0.6) 20%, transparent 70%);
+        }
+        .holo-ambient {
+          position: absolute; inset: 0; pointer-events: none; z-index: 1;
+          background: radial-gradient(ellipse 50% 40% at 50% 45%, rgba(0,140,255,0.08), transparent 70%);
+        }
+        .holo-vignette {
+          position: absolute; inset: 0; pointer-events: none; z-index: 8;
+          background: radial-gradient(ellipse 50% 48% at 50% 42%, transparent 45%, rgba(1,8,16,0.92) 100%);
+        }
+        @keyframes holoScan {
+          0%   { top: -6%; opacity: 0; }
+          4%   { opacity: 1; }
+          48%  { top: 98%; opacity: 0.9; }
+          52%  { opacity: 0; }
+          56%  { top: 98%; opacity: 0; }
+          60%  { opacity: 1; }
+          96%  { top: -6%; opacity: 0.9; }
+          100% { top: -6%; opacity: 0; }
+        }
+        .holo-scan-line {
+          position: absolute; left: 0; right: 0; height: 2px; pointer-events: none; z-index: 10;
+          background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(139,233,255,0.03) 8%,
+            rgba(139,233,255,0.6) 25%,
+            rgba(200,240,255,0.95) 45%,
+            rgba(255,255,255,1) 50%,
+            rgba(200,240,255,0.95) 55%,
+            rgba(139,233,255,0.6) 75%,
+            rgba(139,233,255,0.03) 92%,
+            transparent 100%);
+          box-shadow:
+            0 0 8px 2px rgba(139,233,255,0.6),
+            0 0 25px 6px rgba(139,233,255,0.3),
+            0 0 60px 12px rgba(0,100,200,0.15);
+          animation: holoScan 5s ease-in-out infinite;
+        }
+        .holo-scan-bloom {
+          position: absolute; left: 0; right: 0; height: 80px; pointer-events: none; z-index: 9;
+          transform: translateY(-50%);
+          background: linear-gradient(90deg,
+            transparent 5%,
+            rgba(139,233,255,0.04) 20%,
+            rgba(139,233,255,0.09) 40%,
+            rgba(139,233,255,0.12) 50%,
+            rgba(139,233,255,0.09) 60%,
+            rgba(139,233,255,0.04) 80%,
+            transparent 95%);
+          animation: holoScan 5s ease-in-out infinite;
+        }
+        .holo-body-svg path, .holo-body-svg ellipse {
+          transition: fill 0.4s, stroke 0.4s, filter 0.4s;
+        }
+      `}</style>
+
+      <div className="holo-grid" />
+      <div className="holo-ambient" />
+
+      <svg className="holo-body-svg" viewBox="0 0 300 520" style={{ display: "block", width: "100%", position: "relative", zIndex: 3 }}>
+        <defs>
+          <radialGradient id="ambientGlow" cx="50%" cy="42%" rx="40%" ry="48%">
+            <stop offset="0%" stopColor="rgba(0,140,255,0.12)" />
+            <stop offset="60%" stopColor="rgba(0,80,180,0.04)" />
+            <stop offset="100%" stopColor="transparent" />
+          </radialGradient>
+          <linearGradient id="selectedFill" x1="0.5" y1="0" x2="0.5" y2="1">
+            <stop offset="0%" stopColor="rgba(139,233,255,0.65)" />
+            <stop offset="40%" stopColor="rgba(80,200,255,0.5)" />
+            <stop offset="100%" stopColor="rgba(0,140,255,0.35)" />
+          </linearGradient>
+          <linearGradient id="highFatFill" x1="0.5" y1="0" x2="0.5" y2="1">
+            <stop offset="0%" stopColor="rgba(255,107,107,0.22)" />
+            <stop offset="100%" stopColor="rgba(200,60,60,0.12)" />
+          </linearGradient>
+          <linearGradient id="medFatFill" x1="0.5" y1="0" x2="0.5" y2="1">
+            <stop offset="0%" stopColor="rgba(245,185,74,0.2)" />
+            <stop offset="100%" stopColor="rgba(200,140,40,0.1)" />
+          </linearGradient>
+          <linearGradient id="lowFatFill" x1="0.5" y1="0" x2="0.5" y2="1">
+            <stop offset="0%" stopColor="rgba(0,160,255,0.18)" />
+            <stop offset="100%" stopColor="rgba(0,100,200,0.08)" />
+          </linearGradient>
+          <linearGradient id="headFill" x1="0.5" y1="0" x2="0.5" y2="1">
+            <stop offset="0%" stopColor="rgba(60,180,255,0.18)" />
+            <stop offset="100%" stopColor="rgba(0,100,200,0.08)" />
+          </linearGradient>
+          <filter id="bodyBlur">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="8" />
+          </filter>
+        </defs>
+
+        <ellipse cx="150" cy="240" rx="100" ry="200" fill="url(#ambientGlow)" />
+
+        {/* Shadow / outer glow layer behind the body */}
+        <g style={{ filter: "blur(12px)", opacity: 0.4 }}>
+          <ellipse cx="150" cy="52" rx="28" ry="32" fill="rgba(0,140,255,0.3)" />
+          <path d="M112,96 C108,96 100,102 98,110 L92,165 L90,205 C90,215 96,222 108,224 L140,228 L160,228 L192,224 C204,222 210,215 210,205 L208,165 L202,110 C200,102 192,96 188,96 Z" fill="rgba(0,140,255,0.25)" />
+          <path d="M94,104 C84,108 72,118 62,148 L48,200 L36,240 C34,248 38,252 44,248 L60,210 L80,160 L94,120 Z" fill="rgba(0,140,255,0.2)" />
+          <path d="M206,104 C216,108 228,118 238,148 L252,200 L264,240 C266,248 262,252 256,248 L240,210 L220,160 L206,120 Z" fill="rgba(0,140,255,0.2)" />
+          <path d="M112,226 C106,230 100,250 96,290 L88,370 L82,440 L80,480 C80,490 88,494 92,484 L100,420 L108,350 L116,280 L120,240 Z" fill="rgba(0,140,255,0.2)" />
+          <path d="M188,226 C194,230 200,250 204,290 L212,370 L218,440 L220,480 C220,490 212,494 208,484 L200,420 L192,350 L184,280 L180,240 Z" fill="rgba(0,140,255,0.2)" />
+        </g>
+
+        {/* Head */}
+        <ellipse cx="150" cy="52" rx="26" ry="30" fill="url(#headFill)" stroke="rgba(0,180,255,0.3)" strokeWidth="0.7"
+          style={{ filter: "drop-shadow(0 0 6px rgba(0,140,255,0.35))" }} />
+        {/* Neck */}
+        <path d="M138,80 Q140,78 150,78 Q160,78 162,80 L162,96 Q158,94 150,94 Q142,94 138,96 Z"
+          fill="rgba(0,140,255,0.1)" stroke="rgba(0,160,255,0.15)" strokeWidth="0.4" />
+
+        {/* Torso */}
+        {region("torso", (f, s, w) => (
+          <path d="M112,96 C108,96 100,102 98,110 L92,165 L90,205 C90,215 96,222 108,224 L140,228 L160,228 L192,224 C204,222 210,215 210,205 L208,165 L202,110 C200,102 192,96 188,96 Z"
+            fill={f} stroke={s} strokeWidth={w} />
+        ))}
+
+        {/* Right Arm */}
+        {region("rightArm", (f, s, w) => (
+          <path d="M94,104 C84,108 72,118 62,148 L48,200 L36,240 C34,248 34,254 38,256 C42,258 46,254 48,248 L52,232 L60,210 L72,178 L80,160 L90,132 L94,114 Z"
+            fill={f} stroke={s} strokeWidth={w} />
+        ))}
+
+        {/* Left Arm */}
+        {region("leftArm", (f, s, w) => (
+          <path d="M206,104 C216,108 228,118 238,148 L252,200 L264,240 C266,248 266,254 262,256 C258,258 254,254 252,248 L248,232 L240,210 L228,178 L220,160 L210,132 L206,114 Z"
+            fill={f} stroke={s} strokeWidth={w} />
+        ))}
+
+        {/* Right Leg */}
+        {region("rightLeg", (f, s, w) => (
+          <path d="M112,226 C106,230 100,250 96,280 L90,330 L86,380 L82,430 L80,460 L78,480 C78,490 82,496 88,496 C94,496 96,490 96,484 L98,460 L102,420 L106,380 L110,330 L114,280 L118,250 L120,234 Z"
+            fill={f} stroke={s} strokeWidth={w} />
+        ))}
+
+        {/* Left Leg */}
+        {region("leftLeg", (f, s, w) => (
+          <path d="M188,226 C194,230 200,250 204,280 L210,330 L214,380 L218,430 L220,460 L222,480 C222,490 218,496 212,496 C206,496 204,490 204,484 L202,460 L198,420 L194,380 L190,330 L186,280 L182,250 L180,234 Z"
+            fill={f} stroke={s} strokeWidth={w} />
+        ))}
+
+        {/* R / L labels */}
+        <text x="28" y="106" textAnchor="middle" fill="rgba(139,233,255,0.35)" fontSize="11" fontFamily="'IBM Plex Mono', monospace" fontWeight="600">R</text>
+        <text x="272" y="106" textAnchor="middle" fill="rgba(139,233,255,0.35)" fontSize="11" fontFamily="'IBM Plex Mono', monospace" fontWeight="600">L</text>
+      </svg>
+
+      <div className="holo-scan-bloom" />
+      <div className="holo-scan-line" />
+      <div className="holo-vignette" />
+    </div>
   );
 }
 
