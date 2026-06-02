@@ -410,7 +410,7 @@ function Gauge({ cur, tgt, max, label, sub, mode }) {
     <div style={{ textAlign: "center" }}>
       <div style={{ position: "relative", width: 132, height: 132, margin: "0 auto" }}>
         <svg width="132" height="132" style={{ transform: "rotate(-90deg)" }}>
-          <circle cx="66" cy="66" r={r} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="8" />
+          <circle cx="66" cy="66" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="8" />
           <circle cx="66" cy="66" r={r} fill="none" stroke={col} strokeWidth="8" strokeLinecap="round" strokeDasharray={`${dash} ${c}`} style={{ transition: "stroke-dasharray .9s ease, stroke .4s", filter: `drop-shadow(0 0 6px ${col})` }} />
         </svg>
         <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
@@ -424,7 +424,7 @@ function Gauge({ cur, tgt, max, label, sub, mode }) {
 }
 
 function Panel({ children, style }) {
-  return <div style={{ background: "linear-gradient(160deg, rgba(255,255,255,0.045), rgba(255,255,255,0.015))", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, padding: 22, ...style }}>{children}</div>;
+  return <div style={{ background: "rgba(255,255,255,0.05)", backdropFilter: "blur(28px) saturate(150%)", WebkitBackdropFilter: "blur(28px) saturate(150%)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 22, padding: 22, boxShadow: "0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(255,255,255,0.02)", ...style }}>{children}</div>;
 }
 function SectionTitle({ n, children }) {
   return <h2 style={{ display: "flex", alignItems: "baseline", gap: 12, margin: "0 0 18px", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 22, fontWeight: 700, color: "#fff", letterSpacing: "-0.01em" }}>{n && <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, color: "#34e0a1", fontWeight: 500 }}>{n}</span>}{children}</h2>;
@@ -489,16 +489,16 @@ export default function App() {
   let pace = null;
   if (loggedPace.length) { const last = loggedPace[loggedPace.length - 1]; const tgt = paceData.find((d) => d.week === last.week).target; const diff = +(last.actual - tgt).toFixed(1); const wi = weighins["w" + last.week] || {}; const monW = num(wi.mon) ? wi.mon : weightSchedule[last.week - 1].mon; const wkLoss = +(monW - last.actual).toFixed(1); const pctLoss = monW ? +((wkLoss / monW) * 100).toFixed(2) : 0; pace = { week: last.week, diff, wkLoss, pctLoss }; }
 
-  const btn = (c) => ({ padding: "10px 18px", borderRadius: 10, border: "none", cursor: "pointer", background: c, color: "#06120d", fontWeight: 600, fontFamily: "'Spline Sans', sans-serif", fontSize: 13.5 });
-  const btnGhost = { padding: "10px 18px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.15)", cursor: "pointer", background: "transparent", color: "rgba(255,255,255,0.7)", fontWeight: 600, fontFamily: "'Spline Sans', sans-serif", fontSize: 13.5 };
-  const inputStyle = { width: "100%", boxSizing: "border-box", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, color: "#fff", padding: "9px 10px", fontFamily: "'IBM Plex Mono', monospace", fontSize: 14, outline: "none" };
+  const btn = (c) => ({ padding: "11px 22px", borderRadius: 99, border: "none", cursor: "pointer", background: c, color: "#06120d", fontWeight: 600, fontFamily: "'Spline Sans', sans-serif", fontSize: 13.5, boxShadow: `0 4px 16px ${c}44, inset 0 1px 0 rgba(255,255,255,0.3)`, transition: "all .2s" });
+  const btnGhost = { padding: "11px 22px", borderRadius: 99, border: "1px solid rgba(255,255,255,0.12)", cursor: "pointer", background: "rgba(255,255,255,0.04)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", color: "rgba(255,255,255,0.7)", fontWeight: 600, fontFamily: "'Spline Sans', sans-serif", fontSize: 13.5, boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)", transition: "all .2s" };
+  const inputStyle = { width: "100%", boxSizing: "border-box", background: "rgba(255,255,255,0.04)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, color: "#fff", padding: "10px 12px", fontFamily: "'IBM Plex Mono', monospace", fontSize: 14, outline: "none", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04), 0 2px 8px rgba(0,0,0,0.15)", transition: "border-color .2s" };
 
   const exportData = () => { try { const data = { profile: "Harman", goal: "70 kg @ 10%", weighins, exlog, cardio: cardioLog, exportedAt: new Date().toISOString() }; const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "harman-tracker.json"; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); setToast("Exported — commit to GitHub & send me the raw link"); } catch { setToast("Export failed"); } };
   const copyData = async () => { try { await navigator.clipboard.writeText(JSON.stringify({ weighins, exlog, cardio: cardioLog }, null, 2)); setToast("Copied JSON — paste it to me anytime"); } catch { setToast("Copy failed — use Export"); } };
   const importData = () => { try { const d = JSON.parse(importText); if (d.weighins) setWeighins(d.weighins); if (d.exlog) setExlog(d.exlog); if (d.cardio) setCardioLog(d.cardio); setImportText(""); setToast("Imported"); } catch { setToast("Invalid JSON"); } };
 
   return (
-    <div style={{ minHeight: "100vh", width: "100%", overflowX: "hidden", background: "#070a09", color: "#e8efec", fontFamily: "'Spline Sans', sans-serif", position: "relative" }}>
+    <div style={{ minHeight: "100vh", width: "100%", overflowX: "hidden", background: "#060b10", color: "#e8efec", fontFamily: "'Spline Sans', sans-serif", position: "relative" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Spline+Sans:wght@400;500;600&display=swap');
         * { box-sizing: border-box; }
@@ -508,13 +508,23 @@ export default function App() {
         .split2.start { align-items: start; }
         @media (max-width: 700px) { .split2 { grid-template-columns: minmax(0,1fr); } }
         ::-webkit-scrollbar { height: 6px; width: 6px; }
-        ::-webkit-scrollbar-thumb { background: rgba(52,224,161,0.3); border-radius: 99px; }
+        ::-webkit-scrollbar-thumb { background: rgba(139,233,255,0.25); border-radius: 99px; }
         @keyframes rise { from { opacity:0; transform: translateY(14px);} to {opacity:1; transform:none;} }
         .rise { animation: rise .55s cubic-bezier(.2,.9,.2,1) both; }
+        @keyframes orbFloat1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(30px,-20px) scale(1.05); } }
+        @keyframes orbFloat2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-25px,15px) scale(0.95); } }
+        @keyframes orbFloat3 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(15px,25px) scale(1.08); } }
+        .glass-inner { background: rgba(255,255,255,0.03); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; }
       `}</style>
 
-      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", background: "radial-gradient(1100px 500px at 80% -10%, rgba(52,224,161,0.10), transparent), radial-gradient(900px 600px at -10% 110%, rgba(139,233,255,0.07), transparent)" }} />
-      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", opacity: 0.5, backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.012) 3px)" }} />
+      {/* Gradient orbs for glass refraction */}
+      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: "-15%", right: "-8%", width: 800, height: 800, borderRadius: "50%", background: "radial-gradient(circle, rgba(52,224,161,0.22) 0%, rgba(52,224,161,0.08) 35%, transparent 65%)", animation: "orbFloat1 12s ease-in-out infinite", filter: "blur(30px)" }} />
+        <div style={{ position: "absolute", bottom: "-10%", left: "-12%", width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(circle, rgba(139,233,255,0.18) 0%, rgba(0,120,255,0.07) 35%, transparent 65%)", animation: "orbFloat2 15s ease-in-out infinite", filter: "blur(35px)" }} />
+        <div style={{ position: "absolute", top: "35%", left: "55%", width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle, rgba(160,100,255,0.12) 0%, rgba(100,50,200,0.04) 35%, transparent 65%)", animation: "orbFloat3 18s ease-in-out infinite", filter: "blur(40px)" }} />
+        <div style={{ position: "absolute", top: "15%", right: "15%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(245,185,74,0.09) 0%, transparent 55%)", animation: "orbFloat2 20s ease-in-out infinite", filter: "blur(35px)" }} />
+        <div style={{ position: "absolute", bottom: "20%", right: "30%", width: 450, height: 450, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,200,255,0.1) 0%, transparent 55%)", animation: "orbFloat1 16s ease-in-out infinite", filter: "blur(45px)" }} />
+      </div>
 
       <div style={{ position: "relative", width: "100%", maxWidth: 1080, margin: "0 auto", padding: "clamp(20px,4vw,44px)" }}>
         {/* HEADER */}
@@ -524,9 +534,9 @@ export default function App() {
             <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(34px,7vw,56px)", fontWeight: 800, margin: 0, lineHeight: 0.95, letterSpacing: "-0.03em" }}>{profile.name}<span style={{ color: GOAL }}> → 10%</span></h1>
             <div style={{ marginTop: 10, fontSize: 13, color: "rgba(255,255,255,0.5)", fontFamily: "'IBM Plex Mono', monospace" }}>Baseline scan · {profile.date}</div>
           </div>
-          <div style={{ display: "flex", gap: 4, padding: 4, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12 }}>
+          <div style={{ display: "flex", gap: 4, padding: 4, background: "rgba(255,255,255,0.03)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, boxShadow: "0 4px 20px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.06)" }}>
             {[["now", "NOW", "#34e0a1"], ["goal", "GOAL", GOAL]].map(([id, lbl, col]) => (
-              <button key={id} onClick={() => setMode(id)} style={{ padding: "9px 20px", borderRadius: 9, border: "none", cursor: "pointer", fontFamily: "'IBM Plex Mono', monospace", fontWeight: 600, fontSize: 13, letterSpacing: ".1em", color: mode === id ? "#06120d" : "rgba(255,255,255,0.55)", background: mode === id ? col : "transparent", transition: "all .2s" }}>{lbl}</button>
+              <button key={id} onClick={() => setMode(id)} style={{ padding: "9px 22px", borderRadius: 12, border: "none", cursor: "pointer", fontFamily: "'IBM Plex Mono', monospace", fontWeight: 600, fontSize: 13, letterSpacing: ".1em", color: mode === id ? "#06120d" : "rgba(255,255,255,0.5)", background: mode === id ? col : "transparent", boxShadow: mode === id ? `0 4px 14px ${col}44, inset 0 1px 0 rgba(255,255,255,0.3)` : "none", transition: "all .25s" }}>{lbl}</button>
             ))}
           </div>
         </header>
@@ -556,9 +566,9 @@ export default function App() {
         </div>
 
         {/* TABS */}
-        <nav style={{ display: "flex", gap: 6, padding: 5, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, marginBottom: 24, flexWrap: "wrap" }}>
+        <nav style={{ display: "flex", gap: 6, padding: 5, background: "rgba(255,255,255,0.03)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, marginBottom: 24, flexWrap: "wrap", boxShadow: "0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.05)" }}>
           {tabs.map((t) => (
-            <button key={t.id} onClick={() => setTab(t.id)} style={{ flex: "1 1 auto", minWidth: 78, padding: "11px 12px", borderRadius: 10, border: "none", cursor: "pointer", fontFamily: "'Spline Sans', sans-serif", fontSize: 14, fontWeight: 600, color: tab === t.id ? "#06120d" : "rgba(255,255,255,0.6)", background: tab === t.id ? "linear-gradient(180deg,#48f0b0,#2fc88f)" : "transparent", boxShadow: tab === t.id ? "0 6px 20px rgba(52,224,161,0.25)" : "none", transition: "all .2s" }}>{t.label}</button>
+            <button key={t.id} onClick={() => setTab(t.id)} style={{ flex: "1 1 auto", minWidth: 78, padding: "11px 12px", borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "'Spline Sans', sans-serif", fontSize: 14, fontWeight: 600, color: tab === t.id ? "#06120d" : "rgba(255,255,255,0.55)", background: tab === t.id ? "linear-gradient(180deg,#48f0b0,#2fc88f)" : "transparent", boxShadow: tab === t.id ? "0 4px 16px rgba(52,224,161,0.3), inset 0 1px 0 rgba(255,255,255,0.3)" : "none", transition: "all .25s" }}>{t.label}</button>
           ))}
         </nav>
 
@@ -821,7 +831,7 @@ export default function App() {
                   const rest = p.w === "Rest";
                   const active = !rest && p.w === wkday;
                   return (
-                    <button key={p.d} onClick={() => !rest && setWkday(p.w)} style={{ cursor: rest ? "default" : "pointer", border: "none", borderRadius: 12, padding: "12px 4px", textAlign: "center", background: active ? "linear-gradient(180deg,#48f0b0,#2fc88f)" : rest ? "rgba(255,255,255,0.02)" : "rgba(255,255,255,0.05)", transition: "all .2s" }}>
+                    <button key={p.d} onClick={() => !rest && setWkday(p.w)} style={{ cursor: rest ? "default" : "pointer", border: active ? "1px solid rgba(52,224,161,0.3)" : "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: "12px 4px", textAlign: "center", background: active ? "linear-gradient(180deg,#48f0b0,#2fc88f)" : rest ? "rgba(255,255,255,0.02)" : "rgba(255,255,255,0.03)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", boxShadow: active ? "0 4px 14px rgba(52,224,161,0.25), inset 0 1px 0 rgba(255,255,255,0.3)" : "inset 0 1px 0 rgba(255,255,255,0.03)", transition: "all .2s" }}>
                       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10.5, color: active ? "#06120d" : "rgba(255,255,255,0.45)", marginBottom: 4 }}>{p.d}</div>
                       <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 12.5, fontWeight: 700, color: active ? "#06120d" : rest ? "rgba(255,255,255,0.3)" : "#fff" }}>{p.w}</div>
                     </button>
@@ -833,7 +843,7 @@ export default function App() {
             <Panel>
               <div style={{ display: "flex", gap: 8, marginBottom: 18, flexWrap: "wrap" }}>
                 {["Push", "Pull", "Legs"].map((w) => (
-                  <button key={w} onClick={() => setWkday(w)} style={{ flex: "1 1 auto", padding: "10px 16px", borderRadius: 10, border: wkday === w ? "1px solid rgba(52,224,161,0.5)" : "1px solid rgba(255,255,255,0.1)", cursor: "pointer", background: wkday === w ? "rgba(52,224,161,0.12)" : "transparent", color: wkday === w ? "#34e0a1" : "rgba(255,255,255,0.6)", fontFamily: "'Spline Sans', sans-serif", fontSize: 14, fontWeight: 600, transition: "all .2s" }}>{w}</button>
+                  <button key={w} onClick={() => setWkday(w)} style={{ flex: "1 1 auto", padding: "10px 16px", borderRadius: 14, border: wkday === w ? "1px solid rgba(52,224,161,0.35)" : "1px solid rgba(255,255,255,0.07)", cursor: "pointer", background: wkday === w ? "rgba(52,224,161,0.1)" : "rgba(255,255,255,0.02)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", color: wkday === w ? "#34e0a1" : "rgba(255,255,255,0.55)", fontFamily: "'Spline Sans', sans-serif", fontSize: 14, fontWeight: 600, boxShadow: wkday === w ? "0 4px 12px rgba(52,224,161,0.15), inset 0 1px 0 rgba(52,224,161,0.1)" : "inset 0 1px 0 rgba(255,255,255,0.03)", transition: "all .25s" }}>{w}</button>
                 ))}
               </div>
               <div style={{ marginBottom: 16 }}>
@@ -846,7 +856,7 @@ export default function App() {
                 <>
                   <div style={{ display: "grid", gap: 10 }}>
                     {(workouts[wkday] || workouts.Push).items.map((ex, i) => (
-                      <div key={i} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: 16 }}>
+                      <div key={i} style={{ background: "rgba(255,255,255,0.03)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, padding: 16, boxShadow: "0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.04)" }}>
                         <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
                           <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, fontWeight: 600, color: "#06120d", background: "#34e0a1", width: 24, height: 24, borderRadius: 7, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 2 }}>{i + 1}</span>
                           <div style={{ flex: 1, minWidth: 0 }}>
@@ -870,7 +880,7 @@ export default function App() {
               <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, letterSpacing: ".14em", color: "rgba(255,255,255,0.45)", marginBottom: 12 }}>16-WEEK PROGRESSION · tap a block</div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(120px,1fr))", gap: 10, marginBottom: 14 }}>
                 {blocks.map((b) => (
-                  <button key={b.id} onClick={() => setBlock(b.id)} style={{ cursor: "pointer", textAlign: "left", border: block === b.id ? `1px solid ${b.color}88` : "1px solid rgba(255,255,255,0.08)", borderRadius: 14, padding: 14, background: block === b.id ? `${b.color}14` : "rgba(255,255,255,0.02)", transition: "all .2s" }}>
+                  <button key={b.id} onClick={() => setBlock(b.id)} style={{ cursor: "pointer", textAlign: "left", border: block === b.id ? `1px solid ${b.color}55` : "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 14, background: block === b.id ? `${b.color}0d` : "rgba(255,255,255,0.02)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", boxShadow: block === b.id ? `0 4px 16px ${b.color}22, inset 0 1px 0 ${b.color}18` : "inset 0 1px 0 rgba(255,255,255,0.03)", transition: "all .25s" }}>
                     <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: "rgba(255,255,255,0.45)" }}>{b.weeks}</div>
                     <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 16, fontWeight: 700, color: block === b.id ? b.color : "#fff", marginTop: 2 }}>{b.name}</div>
                   </button>
@@ -881,7 +891,7 @@ export default function App() {
                   <p style={{ margin: "0 0 16px", fontSize: 14.5, lineHeight: 1.6, color: "rgba(255,255,255,0.8)" }}>{b.focus}</p>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(130px,1fr))", gap: 12 }}>
                     {[["INTENSITY", b.intensity], ["LISS CARDIO", b.liss], ["HIIT", b.hiit]].map(([k, v]) => (
-                      <div key={k} style={{ background: "rgba(255,255,255,0.03)", borderRadius: 12, padding: "12px 14px" }}>
+                      <div key={k} style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: "12px 14px", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
                         <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, letterSpacing: ".1em", color: "rgba(255,255,255,0.4)", marginBottom: 5 }}>{k}</div>
                         <div style={{ fontSize: 13.5, fontWeight: 600, color: "#fff" }}>{v}</div>
                       </div>
@@ -924,7 +934,7 @@ export default function App() {
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(8,minmax(0,1fr))", gap: 6 }}>
                 {weightSchedule.map((r) => (
-                  <button key={r.week} onClick={() => setTrkWeek(r.week)} style={{ padding: "10px 0", borderRadius: 10, border: "none", cursor: "pointer", fontFamily: "'IBM Plex Mono', monospace", fontWeight: 600, fontSize: 13, color: trkWeek === r.week ? "#06120d" : "rgba(255,255,255,0.55)", background: trkWeek === r.week ? GOAL : "rgba(255,255,255,0.05)", transition: "all .15s" }}>{r.week}</button>
+                  <button key={r.week} onClick={() => setTrkWeek(r.week)} style={{ padding: "10px 0", borderRadius: 12, border: trkWeek === r.week ? "1px solid rgba(139,233,255,0.3)" : "1px solid rgba(255,255,255,0.06)", cursor: "pointer", fontFamily: "'IBM Plex Mono', monospace", fontWeight: 600, fontSize: 13, color: trkWeek === r.week ? "#06120d" : "rgba(255,255,255,0.55)", background: trkWeek === r.week ? GOAL : "rgba(255,255,255,0.03)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", boxShadow: trkWeek === r.week ? `0 4px 14px ${GOAL}33, inset 0 1px 0 rgba(255,255,255,0.3)` : "inset 0 1px 0 rgba(255,255,255,0.03)", transition: "all .2s" }}>{r.week}</button>
                 ))}
               </div>
             </Panel>
@@ -998,7 +1008,7 @@ export default function App() {
                 <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, letterSpacing: ".14em", color: "rgba(255,255,255,0.45)" }}>WEEK {trkWeek} · EXERCISE LOG</div>
                 <div style={{ display: "flex", gap: 6 }}>
                   {["Push", "Pull", "Legs"].map((d) => (
-                    <button key={d} onClick={() => setLogDay(d)} style={{ padding: "7px 14px", borderRadius: 9, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "'Spline Sans', sans-serif", color: logDay === d ? "#06120d" : "rgba(255,255,255,0.55)", background: logDay === d ? "#34e0a1" : "rgba(255,255,255,0.06)" }}>{d}</button>
+                    <button key={d} onClick={() => setLogDay(d)} style={{ padding: "7px 14px", borderRadius: 12, border: logDay === d ? "1px solid rgba(52,224,161,0.3)" : "1px solid rgba(255,255,255,0.06)", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "'Spline Sans', sans-serif", color: logDay === d ? "#06120d" : "rgba(255,255,255,0.55)", background: logDay === d ? "#34e0a1" : "rgba(255,255,255,0.03)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", boxShadow: logDay === d ? "0 3px 12px rgba(52,224,161,0.2), inset 0 1px 0 rgba(255,255,255,0.3)" : "inset 0 1px 0 rgba(255,255,255,0.03)", transition: "all .2s" }}>{d}</button>
                   ))}
                 </div>
               </div>
@@ -1006,7 +1016,7 @@ export default function App() {
                 {workouts[logDay].items.map((ex, i) => {
                   const cell = (exlog[wkKey] && exlog[wkKey][logDay] && exlog[wkKey][logDay][i]) || {};
                   return (
-                    <div key={i} style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 84px 70px", gap: 9, alignItems: "center", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: "10px 12px" }}>
+                    <div key={i} style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 84px 70px", gap: 9, alignItems: "center", background: "rgba(255,255,255,0.03)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "10px 12px", boxShadow: "0 2px 10px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.04)" }}>
                       <div style={{ minWidth: 0 }}>
                         <div style={{ fontSize: 13.5, fontWeight: 600, color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ex.n}</div>
                         <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10.5, color: "rgba(255,255,255,0.4)" }}>{ex.s}</div>
@@ -1027,7 +1037,7 @@ export default function App() {
                 {dayLabels.map((dl, i) => {
                   const cell = (cardioLog[wkKey] && cardioLog[wkKey].sessions && cardioLog[wkKey].sessions[i]) || {};
                   return (
-                    <div key={i} style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 78px 78px", gap: 9, alignItems: "center", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: "10px 12px" }}>
+                    <div key={i} style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 78px 78px", gap: 9, alignItems: "center", background: "rgba(255,255,255,0.03)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "10px 12px", boxShadow: "0 2px 10px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.04)" }}>
                       <div style={{ minWidth: 0 }}><span style={{ fontSize: 13.5, fontWeight: 600, color: "#fff" }}>{dl}</span> <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{sessionDays[i]}</span></div>
                       <input type="number" inputMode="numeric" placeholder="pre" value={num(cell.pre) ? cell.pre : ""} onChange={(e) => setCard(i, "pre", e.target.value)} style={inputStyle} />
                       <input type="number" inputMode="numeric" placeholder="post" value={num(cell.post) ? cell.post : ""} onChange={(e) => setCard(i, "post", e.target.value)} style={inputStyle} />
@@ -1051,7 +1061,7 @@ export default function App() {
           </div>
         )}
 
-        {toast && <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", background: "#0d1411", border: "1px solid rgba(52,224,161,0.4)", color: "#bff3df", padding: "10px 18px", borderRadius: 99, fontSize: 13, fontFamily: "'IBM Plex Mono', monospace", zIndex: 50, boxShadow: "0 8px 30px rgba(0,0,0,0.5)" }}>{toast}</div>}
+        {toast && <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", background: "rgba(10,20,16,0.7)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(52,224,161,0.3)", color: "#bff3df", padding: "12px 22px", borderRadius: 99, fontSize: 13, fontFamily: "'IBM Plex Mono', monospace", zIndex: 50, boxShadow: "0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(52,224,161,0.1)" }}>{toast}</div>}
 
         <footer style={{ marginTop: 34, paddingTop: 18, borderTop: "1px solid rgba(255,255,255,0.07)", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, fontFamily: "'IBM Plex Mono', monospace", fontSize: 10.5, color: "rgba(255,255,255,0.3)" }}>
           <span>Targets computed from baseline scan · not medical advice</span>
