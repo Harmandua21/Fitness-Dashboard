@@ -95,7 +95,7 @@ const mealPlan = {
     title: "PROTEIN · 180–190 g/day",
     note: "High protein protects muscle during the deficit. Spread across 4–5 meals for best absorption.",
     items: [
-      { food: "Isopure Zero Carb Isolate", qty: "2 scoops (60g powder)", grams: "50g protein", cal: "~220 kcal", when: "1 scoop post-workout in water, 1 scoop before bed in water or with 200ml milk", tip: "Zero carbs, zero fat — the cleanest way to hit your protein number without overshooting calories." },
+      { food: "Isopure Zero Carb Isolate", qty: "2 scoops (60g powder)", grams: "50g protein", cal: "~220 kcal", when: "Both scoops post-workout at 11:30 AM — blended with 1 banana + 1 apple + Creatine HCL + water/ice", tip: "Zero carbs, zero fat from the powder — the fruit adds the carbs your muscles need post-workout. Taking both scoops together is fine; the shake + fruit combo gives you 50g protein and ~48g fast carbs right when your body absorbs them best." },
       { food: "Chicken breast (boneless)", qty: "250g cooked", grams: "78g protein", cal: "~410 kcal", when: "Split across lunch & dinner (125g each)", tip: "Grilled, air-fried or tandoori. Avoid deep frying — that turns lean protein into a fat bomb." },
       { food: "Whole eggs", qty: "2", grams: "12g protein · 10g fat", cal: "~140 kcal", when: "Breakfast — boiled or scrambled in minimal oil", tip: "Yolks are fine — they carry the vitamin D, B12 and healthy fats. 2 per day keeps fat in budget." },
       { food: "Egg whites", qty: "4 extra whites", grams: "14g protein · 0 fat", cal: "~60 kcal", when: "With the 2 whole eggs at breakfast", tip: "Pure protein. Buy liquid carton whites or separate at home." },
@@ -157,17 +157,17 @@ const mealPlan = {
     total: "Rotate 1 dal/legume per meal. On non-chicken days, combine 2 legume sources to hit protein.",
   },
   sample: {
-    title: "SAMPLE DAY · ~2,050 kcal",
+    title: "YOUR SAMPLE DAY · ~2,050 kcal",
     meals: [
-      { time: "7:00 AM", meal: "Breakfast", items: "50g oats + 200ml low-fat milk + 2 whole eggs + 4 egg whites scrambled + 1 tbsp peanut butter + coffee (black)", macros: "P: 42g · C: 45g · F: 22g · ~530 kcal" },
-      { time: "10:00 AM", meal: "Snack", items: "10 almonds + 1 apple or guava", macros: "P: 4g · C: 25g · F: 7g · ~160 kcal" },
-      { time: "1:00 PM", meal: "Lunch (post-workout)", items: "150g cooked rice + 125g chicken breast (grilled) + 150g cooked moong dal + sabzi (150g mixed veg) + 1 tsp ghee", macros: "P: 52g · C: 65g · F: 14g · ~590 kcal" },
-      { time: "4:30 PM", meal: "Pre-workout", items: "1 banana + 1 scoop Isopure in water", macros: "P: 27g · C: 27g · F: 0g · ~215 kcal" },
-      { time: "6:00 PM", meal: "Training", items: "BCAAs intra-workout", macros: "" },
-      { time: "8:00 PM", meal: "Dinner", items: "2 roti + 125g chicken breast + sabzi (150g veg) + 200g low-fat curd + 1 tsp olive oil", macros: "P: 48g · C: 42g · F: 16g · ~500 kcal" },
-      { time: "10:00 PM", meal: "Before bed", items: "1 scoop Isopure in water + 1 tbsp isabgol in water", macros: "P: 25g · C: 0g · F: 0g · ~110 kcal" },
+      { time: "7:30 AM", meal: "Breakfast", items: "40g oats (cooked in water) + 2 whole eggs + 3 egg whites scrambled in ½ tsp coconut oil + 1 tbsp peanut butter + black coffee", macros: "P: 33g · C: 28g · F: 18g · ~400 kcal" },
+      { time: "9:30 AM", meal: "Training", items: "BCAAs sipped intra-workout · water", macros: "" },
+      { time: "11:30 AM", meal: "Post-workout shake", items: "2 scoops Isopure Zero Carb Isolate + 1 banana + 1 apple + Creatine HCL — blended with water & ice", macros: "P: 50g · C: 48g · F: 0g · ~405 kcal" },
+      { time: "1:30 PM", meal: "Lunch", items: "120g cooked rice (45g dry) + 125g chicken breast (grilled / tandoori) + 150g cooked moong dal + sabzi (150g mixed veg in 1 tsp ghee)", macros: "P: 50g · C: 55g · F: 12g · ~530 kcal" },
+      { time: "5:00 PM", meal: "Snack", items: "200g low-fat curd + 10 almonds + 1 tbsp ground flaxseed", macros: "P: 16g · C: 10g · F: 14g · ~220 kcal" },
+      { time: "8:30 PM", meal: "Dinner", items: "2 whole wheat roti + 125g chicken breast + sabzi (150g veg) + raita (100g curd) + 1 tsp olive oil for cooking", macros: "P: 45g · C: 46g · F: 14g · ~490 kcal" },
+      { time: "10:00 PM", meal: "Before bed", items: "1 tbsp isabgol (psyllium husk) in warm water", macros: "Fiber: 5g · ~10 kcal" },
     ],
-    totals: "TOTAL · P: 198g · C: 174g · F: 59g · ~2,050 kcal ✓",
+    totals: "TOTAL · P: 194g · C: 187g · F: 58g · ~2,055 kcal ✓",
   },
 };
 
