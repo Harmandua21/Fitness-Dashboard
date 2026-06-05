@@ -76,7 +76,100 @@ const nutrition = {
   fat: { cur: [82, 85], tgt: [60, 70], pct: 29, color: "#f5b94a" },
 };
 
-const supplements = ["Whey or Plant Protein", "Creatine Monohydrate", "BCAAs (intra-workout)"];
+const supplements = ["Isopure Zero Carb Isolate", "Creatine Monohydrate (5g/day)", "BCAAs (intra-workout)"];
+
+// Week 1 starts Monday 8 Jun 2026
+const WEEK1_MONDAY = new Date(2026, 5, 8); // month is 0-indexed
+const weekLabel = (wk) => {
+  const d = new Date(WEEK1_MONDAY);
+  d.setDate(d.getDate() + (wk - 1) * 7);
+  const mon = d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  const sat = new Date(d); sat.setDate(sat.getDate() + 5);
+  const satStr = sat.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  return `${mon} – ${satStr}`;
+};
+
+// ------------------------------------------------------------------ MEAL PLAN
+const mealPlan = {
+  protein: {
+    title: "PROTEIN · 180–190 g/day",
+    note: "High protein protects muscle during the deficit. Spread across 4–5 meals for best absorption.",
+    items: [
+      { food: "Isopure Zero Carb Isolate", qty: "2 scoops (60g powder)", grams: "50g protein", cal: "~220 kcal", when: "1 scoop post-workout in water, 1 scoop before bed in water or with 200ml milk", tip: "Zero carbs, zero fat — the cleanest way to hit your protein number without overshooting calories." },
+      { food: "Chicken breast (boneless)", qty: "250g cooked", grams: "78g protein", cal: "~410 kcal", when: "Split across lunch & dinner (125g each)", tip: "Grilled, air-fried or tandoori. Avoid deep frying — that turns lean protein into a fat bomb." },
+      { food: "Whole eggs", qty: "2", grams: "12g protein · 10g fat", cal: "~140 kcal", when: "Breakfast — boiled or scrambled in minimal oil", tip: "Yolks are fine — they carry the vitamin D, B12 and healthy fats. 2 per day keeps fat in budget." },
+      { food: "Egg whites", qty: "4 extra whites", grams: "14g protein · 0 fat", cal: "~60 kcal", when: "With the 2 whole eggs at breakfast", tip: "Pure protein. Buy liquid carton whites or separate at home." },
+      { food: "Paneer (low-fat)", qty: "50g", grams: "9g protein · 6g fat", cal: "~100 kcal", when: "Snack or in a sabzi", tip: "Optional swap for chicken at one meal. Count the fat." },
+      { food: "Curd / Greek yogurt", qty: "200g (low-fat)", grams: "12g protein", cal: "~120 kcal", when: "Post-lunch or as raita", tip: "Probiotics help digestion on high-protein diets." },
+    ],
+    total: "~175g from these sources + ~10–15g incidental from dal, roti, rice = 185–190g ✓",
+  },
+  carbs: {
+    title: "CARBOHYDRATES · 170–185 g/day",
+    note: "Time most carbs around training (pre- and post-workout meals). Cut carbs at dinner if fat loss stalls.",
+    items: [
+      { food: "Oats (rolled)", qty: "50g dry", grams: "30g carbs · 5g fiber", cal: "~190 kcal", when: "Breakfast — with water/milk, egg whites mixed in", tip: "Slow-digesting, keeps you full. Add cinnamon, not sugar." },
+      { food: "Brown / white rice", qty: "60g dry (~150g cooked)", grams: "45g carbs", cal: "~210 kcal", when: "Post-workout lunch", tip: "White rice is fine post-workout — it digests fast and refuels glycogen. Brown rice for other meals." },
+      { food: "Whole wheat roti", qty: "2 medium (30g atta each)", grams: "40g carbs · 4g fiber", cal: "~200 kcal", when: "Dinner", tip: "Stick to 2 max. Multigrain atta is a good upgrade." },
+      { food: "Moong dal / Toor dal", qty: "50g dry (~150g cooked)", grams: "28g carbs · 12g protein · 5g fiber", cal: "~170 kcal", when: "Lunch or dinner — dal with rice or roti", tip: "Moong is lightest on digestion. Toor has slightly more protein. Rotate both." },
+      { food: "Sweet potato", qty: "150g", grams: "30g carbs · 3g fiber", cal: "~130 kcal", when: "Pre-workout meal (swap for rice that day)", tip: "Better micronutrient profile than rice. Boil or roast — don't fry." },
+      { food: "Banana", qty: "1 medium", grams: "27g carbs", cal: "~105 kcal", when: "Pre-workout or post-workout with shake", tip: "Quick energy. Great in the Isopure shake." },
+    ],
+    total: "Pick combinations that total 170–185g. A typical day: oats + rice + 2 roti + dal + banana = ~170g ✓",
+  },
+  fats: {
+    title: "FATS · 60–70 g/day",
+    note: "Fat is essential for hormones (especially testosterone). Don't go below 55g. Prioritise mono/polyunsaturated sources.",
+    items: [
+      { food: "Whole eggs (2)", qty: "counted above", grams: "10g fat", cal: "—", when: "Breakfast", tip: "Already counted in protein. Don't double-count calories." },
+      { food: "Almonds", qty: "10–12 nuts", grams: "7g fat · 3g protein", cal: "~80 kcal", when: "Mid-morning snack", tip: "Mono-unsaturated — heart-healthy. Pre-count and bag them so you don't overeat." },
+      { food: "Peanut butter (natural)", qty: "1 tbsp (15g)", grams: "8g fat · 4g protein", cal: "~95 kcal", when: "With oats at breakfast or on a roti", tip: "No added sugar or hydrogenated oil — read the label. Just peanuts + salt." },
+      { food: "Ghee", qty: "1 tsp (5g)", grams: "5g fat", cal: "~45 kcal", when: "On dal or roti", tip: "Small amount for flavour and fat-soluble vitamin absorption. Don't pour — measure." },
+      { food: "Olive / coconut oil", qty: "2 tsp for cooking", grams: "10g fat", cal: "~90 kcal", when: "Cooking lunch & dinner", tip: "Use a spray bottle or measure with a spoon. Eyeballing oil is the #1 hidden calorie source." },
+      { food: "Flaxseed (ground)", qty: "1 tbsp (10g)", grams: "4g fat · 3g fiber", cal: "~55 kcal", when: "Mix into oats or curd", tip: "Omega-3 source. Grind fresh or buy ground — whole seeds pass through undigested." },
+    ],
+    total: "~44g from listed sources + ~16–20g incidental from chicken, dal, roti = 60–65g ✓",
+  },
+  fiber: {
+    title: "FIBER · 28–35 g/day",
+    note: "Critical for gut health and satiety during a deficit. Ramp up slowly to avoid bloating — add 5g/week if you're currently low.",
+    items: [
+      { food: "Isabgol (psyllium husk)", qty: "1 tbsp (5g)", grams: "5g soluble fiber", cal: "~10 kcal", when: "Before bed in water", tip: "Soluble fiber — forms a gel, slows digestion, great for satiety. Drink immediately — it thickens fast." },
+      { food: "Oats", qty: "from breakfast", grams: "5g fiber", cal: "—", when: "Already counted", tip: "Beta-glucan fiber specifically lowers cholesterol." },
+      { food: "Dal / lentils", qty: "from meals", grams: "5–6g fiber", cal: "—", when: "Already counted", tip: "Split dals have less fiber than whole — use whole moong or masoor occasionally." },
+      { food: "Mixed vegetables", qty: "300g/day", grams: "8g fiber", cal: "~80 kcal", when: "Lunch + dinner sabzi", tip: "Broccoli, spinach, capsicum, beans, lauki, tinda, karela — rotate. Volume is high, calories are low." },
+      { food: "Fruit (apple/guava)", qty: "1 medium", grams: "4g fiber", cal: "~80 kcal", when: "Afternoon snack", tip: "Eat whole, don't juice — juicing strips the fiber." },
+    ],
+    total: "~28–30g/day from these sources. Add chickpeas or rajma on non-chicken days to push toward 35g.",
+  },
+  legumes: {
+    title: "DAL & LEGUME OPTIONS · rotate through the week",
+    note: "All cooked from 50g dry weight. Swap one dal variety per day for variety. Chickpeas and rajma count as both carb + protein.",
+    items: [
+      { food: "Moong dal (yellow split)", qty: "50g dry", grams: "12g protein · 28g carbs · 4g fiber", cal: "~170 kcal", when: "Daily staple — lightest on digestion", tip: "Best for daily use. Quick to cook, pairs with everything." },
+      { food: "Toor / Arhar dal", qty: "50g dry", grams: "11g protein · 30g carbs · 5g fiber", cal: "~175 kcal", when: "2–3×/week", tip: "Classic sambar/dal fry dal. Slightly richer than moong." },
+      { food: "Masoor dal (red lentils)", qty: "50g dry", grams: "12g protein · 28g carbs · 4g fiber", cal: "~170 kcal", when: "2–3×/week", tip: "Cooks fastest. Mild taste, great in soups." },
+      { food: "Chana dal (split chickpea)", qty: "50g dry", grams: "10g protein · 30g carbs · 6g fiber", cal: "~180 kcal", when: "1–2×/week", tip: "Low glycemic index — keeps blood sugar stable. Good for dinner." },
+      { food: "Chole (whole chickpeas)", qty: "80g cooked (~30g dry)", grams: "7g protein · 22g carbs · 6g fiber", cal: "~130 kcal", when: "1–2×/week — swap for rice that meal", tip: "High fiber, very filling. Count as carbs not just protein. Great in salads." },
+      { food: "Rajma (kidney beans)", qty: "80g cooked (~30g dry)", grams: "8g protein · 20g carbs · 6g fiber", cal: "~120 kcal", when: "1×/week with rice", tip: "Classic rajma-chawal — just watch portion size. Very filling." },
+      { food: "Soybean chunks (Nutrela)", qty: "30g dry", grams: "15g protein · 8g carbs · 4g fiber · 3g fat", cal: "~110 kcal", when: "1–2×/week as chicken substitute", tip: "Highest protein legume, but also has fat. Soak 15min, squeeze dry, cook in gravy. Use as a chicken-off-day option." },
+    ],
+    total: "Rotate 1 dal/legume per meal. On non-chicken days, combine 2 legume sources to hit protein.",
+  },
+  sample: {
+    title: "SAMPLE DAY · ~2,050 kcal",
+    meals: [
+      { time: "7:00 AM", meal: "Breakfast", items: "50g oats + 200ml low-fat milk + 2 whole eggs + 4 egg whites scrambled + 1 tbsp peanut butter + coffee (black)", macros: "P: 42g · C: 45g · F: 22g · ~530 kcal" },
+      { time: "10:00 AM", meal: "Snack", items: "10 almonds + 1 apple or guava", macros: "P: 4g · C: 25g · F: 7g · ~160 kcal" },
+      { time: "1:00 PM", meal: "Lunch (post-workout)", items: "150g cooked rice + 125g chicken breast (grilled) + 150g cooked moong dal + sabzi (150g mixed veg) + 1 tsp ghee", macros: "P: 52g · C: 65g · F: 14g · ~590 kcal" },
+      { time: "4:30 PM", meal: "Pre-workout", items: "1 banana + 1 scoop Isopure in water", macros: "P: 27g · C: 27g · F: 0g · ~215 kcal" },
+      { time: "6:00 PM", meal: "Training", items: "BCAAs intra-workout", macros: "" },
+      { time: "8:00 PM", meal: "Dinner", items: "2 roti + 125g chicken breast + sabzi (150g veg) + 200g low-fat curd + 1 tsp olive oil", macros: "P: 48g · C: 42g · F: 16g · ~500 kcal" },
+      { time: "10:00 PM", meal: "Before bed", items: "1 scoop Isopure in water + 1 tbsp isabgol in water", macros: "P: 25g · C: 0g · F: 0g · ~110 kcal" },
+    ],
+    totals: "TOTAL · P: 198g · C: 174g · F: 59g · ~2,050 kcal ✓",
+  },
+};
 
 // ------------------------------------------------------------------ TRAINING
 const splitVerdict = {
@@ -102,34 +195,40 @@ const blocks = [
 ];
 
 const workouts = {
-  Push: { sub: "Chest · Shoulders · Triceps", items: [
+  Push: { sub: "Chest · Shoulders · Triceps + Core", items: [
     { n: "Barbell Bench / Machine Chest Press", t: "Chest", s: "4 × 6–8", h: "Your strongest press — do it first while fresh. Shoulder blades pinned back and down, lower to mid-chest, drive up and slightly back." },
     { n: "Incline Dumbbell Press", t: "Upper Chest", s: "3 × 8–12", h: "Hits the upper chest the flat press under-works. Bench at ~30°, let the dumbbells stretch at the bottom." },
     { n: "Seated Overhead Press", t: "Front / Side Delts", s: "3 × 8–10", h: "Main shoulder mass builder. Brace the core and press overhead without flaring the ribs." },
     { n: "Lateral Raise", t: "Side Delts", s: "3 × 12–15", h: "Side delts give shoulders width and that capped look. Lead with the elbows, no swinging, lower under control." },
     { n: "Rope Triceps Pushdown", t: "Triceps", s: "3 × 10–15", h: "Keep elbows pinned to your sides; spread the rope apart at the bottom and squeeze." },
     { n: "Overhead Triceps Extension", t: "Triceps · long head", s: "3 × 10–12", h: "The overhead stretch targets the long head — the part pushdowns miss. Real arm size lives here." },
+    { n: "Hanging Leg Raise", t: "Lower abs · core", s: "3 × 12–15", h: "Hang from a bar, curl your knees to your chest (or legs straight for harder). The single best lower-ab exercise — directly targets the pouch area below the navel where your scan shows the most subcutaneous fat." },
+    { n: "Cable Crunch", t: "Upper abs · core", s: "3 × 15–20", h: "Kneel at the cable, rope behind your head, crunch down by flexing the spine — not pulling with the arms. Weighted progression is easy here, which matters." },
   ]},
-  Pull: { sub: "Back · Rear Delts · Biceps", items: [
+  Pull: { sub: "Back · Rear Delts · Biceps + Core", items: [
     { n: "Pull-up or Lat Pulldown", t: "Lats · width", s: "4 × 6–10", h: "Builds the V-taper. Drive your elbows down toward your sides and pull with the back, not the arms." },
     { n: "Chest-supported / Barbell Row", t: "Mid-back · thickness", s: "4 × 8–10", h: "Pull to the lower ribs and squeeze the shoulder blades. Chest-supported saves your lower back while dieting." },
     { n: "Seated Cable Row", t: "Mid-back", s: "3 × 10–12", h: "Constant tension for back detail. Keep the torso still — don't rock back to move the weight." },
     { n: "Face Pull", t: "Rear Delts", s: "3 × 15–20", h: "Balances all the pressing and fixes desk posture. Pull to your forehead, thumbs pointing back." },
     { n: "EZ-bar / Dumbbell Curl", t: "Biceps", s: "3 × 8–12", h: "Main biceps mass. Lock the elbows in place — no swinging or shoulder help." },
     { n: "Hammer Curl", t: "Brachialis / Forearm", s: "3 × 10–12", h: "Neutral grip builds the brachialis under the biceps, adding thickness and arm width." },
+    { n: "Russian Twist (weighted)", t: "Obliques · sides", s: "3 × 20 (10/side)", h: "Sit with torso at 45°, feet off the ground, twist a plate or dumbbell side to side. This directly attacks the love-handle area — your scan shows torso fat at 13.4 kg, most of it on the sides." },
+    { n: "Side Plank", t: "Obliques · deep core", s: "3 × 30s each side", h: "Elbow under shoulder, hips stacked, body straight. An isometric hold that builds the deep oblique wall and tightens the waistline. Squeeze the top oblique hard." },
   ]},
-  Legs: { sub: "Quads · Hams · Glutes · Calves", items: [
+  Legs: { sub: "Quads · Hams · Glutes · Calves + Core", items: [
     { n: "Back Squat or Hack Squat", t: "Quads / Glutes", s: "4 × 6–8", h: "The big one. At least to parallel, knees tracking over toes, brace hard. Hack squat is a joint-friendly swap on a cut." },
     { n: "Romanian Deadlift", t: "Hamstrings / Glutes", s: "3 × 8–10", h: "Hip hinge: soft knees, push the hips back, feel the hamstrings stretch, neutral spine. Never round the back." },
     { n: "Leg Press or Walking Lunge", t: "Quads / Glutes", s: "3 × 10–12", h: "More leg volume with less spinal load — useful when recovery is lower in a deficit." },
     { n: "Lying / Seated Leg Curl", t: "Hamstrings", s: "3 × 10–15", h: "Direct hamstring work the squat can't fully reach. Squeeze hard at the peak." },
     { n: "Leg Extension", t: "Quads", s: "3 × 12–15", h: "Quad isolation and a safe finisher you can push close to failure." },
     { n: "Standing Calf Raise", t: "Calves", s: "4 × 12–20", h: "Calves like high reps with a full stretch at the bottom and a pause at the top." },
+    { n: "Ab Wheel Rollout (or Barbell Rollout)", t: "Full core · abs", s: "3 × 10–12", h: "From knees, roll out until your body is nearly flat, then pull back with your abs — not your hips. One of the highest muscle-activation core exercises ever measured. Start from knees, progress to toes." },
+    { n: "Bicycle Crunch", t: "Abs · obliques", s: "3 × 20 (10/side)", h: "Lie on your back, opposite elbow to knee, extend the other leg. Slow and controlled — no speed. Hits both the rectus abdominis and obliques in one move to carve out the midsection." },
   ]},
   Rest: { sub: "Recovery — walk, stretch, sleep", items: [] },
 };
 
-const coreNote = "Add 2–3 core sets (hanging leg raises or cable crunches, 3 × 12–15) at the end of any two sessions a week.";
+const coreNote = "Core is built into every session (last 2 exercises). Your scan shows 13.4 kg torso fat and 96 cm abdominal circumference — these exercises build the muscle wall underneath so when the fat comes off through the deficit, you have definition to show. You cannot spot-reduce fat, but you can spot-build muscle.";
 
 const cardioPlan = {
   pre: { title: "BEFORE WEIGHTS · warm-up only", accent: "#7cc4ff", lines: [
@@ -635,6 +734,55 @@ export default function App() {
                 {supplements.map((x) => <span key={x} style={{ padding: "10px 16px", borderRadius: 99, border: "1px solid rgba(52,224,161,0.3)", background: "rgba(52,224,161,0.08)", fontSize: 13.5, color: "#bff3df" }}>{x}</span>)}
               </div>
             </Panel>
+
+            {/* DETAILED MEAL PLAN */}
+            {[mealPlan.protein, mealPlan.carbs, mealPlan.fats, mealPlan.fiber, mealPlan.legumes].map((section) => (
+              <Panel key={section.title} style={{ marginTop: 16 }}>
+                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, letterSpacing: ".1em", color: GOAL, marginBottom: 6 }}>{section.title}</div>
+                <p style={{ margin: "0 0 14px", fontSize: 13, lineHeight: 1.55, color: "rgba(255,255,255,0.55)" }}>{section.note}</p>
+                <div style={{ display: "grid", gap: 8 }}>
+                  {section.items.map((item) => (
+                    <div key={item.food} style={{ background: "rgba(255,255,255,0.03)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "12px 14px", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
+                        <span style={{ fontSize: 14.5, fontWeight: 600, color: "#fff" }}>{item.food}</span>
+                        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 600, color: "#34e0a1", whiteSpace: "nowrap" }}>{item.qty}</span>
+                      </div>
+                      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 6, fontFamily: "'IBM Plex Mono', monospace", fontSize: 11 }}>
+                        <span style={{ color: "rgba(139,233,255,0.8)" }}>{item.grams}</span>
+                        {item.cal && item.cal !== "—" && <span style={{ color: "rgba(255,255,255,0.4)" }}>{item.cal}</span>}
+                      </div>
+                      {item.when && <div style={{ fontSize: 12, color: "rgba(245,185,74,0.8)", marginBottom: 4 }}>⏰ {item.when}</div>}
+                      {item.tip && <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", lineHeight: 1.5 }}>{item.tip}</div>}
+                    </div>
+                  ))}
+                </div>
+                <div style={{ marginTop: 10, padding: "8px 12px", borderRadius: 10, background: "rgba(52,224,161,0.06)", border: "1px solid rgba(52,224,161,0.15)", fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: "rgba(52,224,161,0.8)", lineHeight: 1.5 }}>{section.total}</div>
+              </Panel>
+            ))}
+
+            {/* SAMPLE DAY */}
+            <Panel style={{ marginTop: 16, borderColor: "rgba(139,233,255,0.2)" }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, letterSpacing: ".1em", color: GOAL, marginBottom: 14 }}>{mealPlan.sample.title}</div>
+              <div style={{ display: "grid", gap: 8 }}>
+                {mealPlan.sample.meals.map((m, i) => (
+                  <div key={i} style={{ display: "grid", gridTemplateColumns: "auto minmax(0,1fr)", gap: 12, alignItems: "start", background: "rgba(255,255,255,0.03)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "12px 14px" }}>
+                    <div style={{ textAlign: "center", minWidth: 60 }}>
+                      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 600, color: GOAL }}>{m.time}</div>
+                      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>{m.meal}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", lineHeight: 1.5 }}>{m.items}</div>
+                      {m.macros && <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10.5, color: "rgba(52,224,161,0.7)", marginTop: 4 }}>{m.macros}</div>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ marginTop: 12, padding: "10px 14px", borderRadius: 12, background: "rgba(139,233,255,0.08)", border: "1px solid rgba(139,233,255,0.2)", fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 600, color: GOAL, textAlign: "center" }}>{mealPlan.sample.totals}</div>
+            </Panel>
+
+            <Panel style={{ marginTop: 16 }}>
+              <p style={{ margin: 0, fontSize: 13, lineHeight: 1.6, color: "rgba(255,255,255,0.55)" }}>This meal plan is a starting framework based on your Evolt scan data and Isopure isolate. Adjust portions week-by-week based on your Tracker weigh-ins. If weight loss stalls for 2 weeks, cut 1 roti or 30g rice before dropping calories further. A registered dietitian can personalise this for your preferences and any health conditions.</p>
+            </Panel>
           </div>
         )}
 
@@ -763,7 +911,7 @@ export default function App() {
 
             <Panel>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
-                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, letterSpacing: ".14em", color: "rgba(255,255,255,0.45)" }}>SELECT WEEK · 16-week cut</div>
+                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, letterSpacing: ".14em", color: "rgba(255,255,255,0.45)" }}>SELECT WEEK · starts 8 Jun 2026</div>
                 {!loaded && <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>loading saved data…</span>}
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(8,minmax(0,1fr))", gap: 6 }}>
@@ -774,7 +922,8 @@ export default function App() {
             </Panel>
 
             <Panel>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, letterSpacing: ".14em", color: "rgba(255,255,255,0.45)", marginBottom: 16 }}>WEEK {trkWeek} · WEIGH-IN</div>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, letterSpacing: ".14em", color: "rgba(255,255,255,0.45)", marginBottom: 4 }}>WEEK {trkWeek} · WEIGH-IN</div>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10.5, color: "rgba(139,233,255,0.5)", marginBottom: 14 }}>{weekLabel(trkWeek)}</div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 14 }}>
                 <div>
                   <div style={{ fontSize: 12.5, color: "rgba(255,255,255,0.55)", marginBottom: 6 }}>Monday — target <b style={{ color: GOAL }}>{wkSched.mon} kg</b></div>
