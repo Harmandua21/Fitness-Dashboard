@@ -612,6 +612,14 @@ function KnobNav({ tabs, active, onChange }) {
   const codes = ["OVR", "CMP", "SEG", "NUT", "TRN", "TRK"];
   const idx = Math.max(0, tabs.findIndex((t) => t.id === active));
   const activeLabel = (tabs[idx] || tabs[0]).label;
+  // Rotate via the shortest arc: unwrap the target angle relative to the
+  // previous one instead of snapping to the fixed per-position CSS angle.
+  const angleRef = useRef(-90);
+  const target = -90 + idx * 60;
+  const delta = (((target - angleRef.current) % 360) + 540) % 360 - 180;
+  const angle = angleRef.current + delta;
+  angleRef.current = angle;
+  const spin = { transform: `rotate(${angle}deg)` };
   return (
     <div className="knobnav fadein">
       <div className="container">
@@ -627,8 +635,8 @@ function KnobNav({ tabs, active, onChange }) {
               {tabs.map((t, i) => (
                 <input key={ids[i]} type="radio" name="knobnav" id={ids[i]} checked={active === t.id} onChange={() => onChange(t.id)} />
               ))}
-              <div className="light"><span /></div>
-              <div className="dot"><span /></div>
+              <div className="light" style={spin}><span /></div>
+              <div className="dot" style={spin}><span /></div>
               <div className="dene"><div className="denem"><div className="deneme" /></div></div>
               <div className="readout">
                 <span className="nm">{activeLabel}</span>
@@ -703,7 +711,6 @@ export default function App() {
 
   const goTab = useCallback((id) => {
     setTab(id);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   // Theme application
