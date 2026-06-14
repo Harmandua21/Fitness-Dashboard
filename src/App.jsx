@@ -64,7 +64,7 @@ const nutrition = {
 
 const supplements = ["Isopure Zero Carb Isolate", "Creatine Monohydrate (5g/day)", "BCAAs (intra-workout)"];
 
-const WEEK1_MONDAY = new Date(2026, 5, 8);
+const WEEK1_MONDAY = new Date(2026, 5, 15);
 const weekLabel = (wk) => {
   const d = new Date(WEEK1_MONDAY);
   d.setDate(d.getDate() + (wk - 1) * 7);
